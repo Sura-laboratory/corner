@@ -26,4 +26,4 @@ jobs:
         run: composer run-script phpcs:ci
 
       - name: Run unit tests
-        run: composer run-script phpunit:ci -no-coverage"
+        run: composer run-script phpunit:ci"
