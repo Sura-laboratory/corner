@@ -1,7 +1,5 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Sura\Corner;
 
 /**
@@ -11,10 +9,10 @@ namespace Sura\Corner;
 trait CornerTrait
 {
     /** @var string $helpfulMessage */
-    protected string $helpfulMessage = '';
+    protected $helpfulMessage = '';
 
     /** @var string $supportLink */
-    protected string $supportLink = '';
+    protected $supportLink = '';
 
     /**
      * Returns a more significant message.
@@ -74,7 +72,12 @@ trait CornerTrait
         }
 
         $iterator = new \LimitIterator($file, $min, $linesAfter + 1);
-        return implode('', $iterator);
+        $buffer = "";
+        /** @var string $text */
+        foreach ($iterator as $text) {
+            $buffer .= $text;
+        }
+        return $buffer;
     }
 
     /**

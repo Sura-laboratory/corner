@@ -17,7 +17,7 @@ class BasicTest extends TestCase
         } catch (CornerInterface $ex) {
             $this->assertSame('test', $ex->getMessage());
             $this->assertNotEmpty($ex->getHelpfulMessage());
-            $this->assertSame('https://github.com/Sura/corner', $ex->getSupportLink());
+            $this->assertSame('https://github.com/Sura-laboratory/corner', $ex->getSupportLink());
         }
     }
 
@@ -28,7 +28,7 @@ class BasicTest extends TestCase
         } catch (CornerInterface $ex) {
             $this->assertSame('test', $ex->getMessage());
             $this->assertNotEmpty($ex->getHelpfulMessage());
-            $this->assertSame('https://github.com/Sura/corner', $ex->getSupportLink());
+            $this->assertSame('https://github.com/Sura-laboratory/corner', $ex->getSupportLink());
         }
     }
 
@@ -86,9 +86,6 @@ class BasicTest extends TestCase
         }
     }
 
-    /**
-     * @throws FooException
-     */
     private function subcall() : void
     {
         /** Canary string: 6115f3456a04616adc5b42f3533d41a43aa2bad7eee2e914684ec86c3b84b71c */

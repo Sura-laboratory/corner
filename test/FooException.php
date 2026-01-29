@@ -14,6 +14,6 @@ class FooException extends Exception
     {
         parent::__construct($message, $code, $previous);
         $this->helpfulMessage = "This is an example of the Exception class";
-        $this->supportLink = "https://github.com/Sura/corner";
+        $this->supportLink = "https://github.com/Sura-laboratory/corner";
     }
 }

@@ -1,7 +1,5 @@
 <?php
-
 declare(strict_types=1);
-
 namespace Sura\Corner;
 
 /**
@@ -13,12 +11,12 @@ interface CornerInterface extends \Throwable
     /**
      * You can override this to change the default value.
      */
-    public const HELPFUL_MESSAGE = '';
+    const HELPFUL_MESSAGE = '';
 
     /**
      * You can override this to change the default value.
      */
-    public const SUPPORT_LINK = '';
+    const SUPPORT_LINK = '';
 
     /**
      * Returns a more significant message.
