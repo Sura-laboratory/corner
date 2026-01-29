@@ -1,1 +1,1 @@
-{"version":2,"defects":[],"times":{"Sura\\Corner\\Tests\\BasicTest::testException":0.003,"Sura\\Corner\\Tests\\BasicTest::testError":0.002,"Sura\\Corner\\Tests\\BasicTest::testSnippet":0.003}}
+{"version":2,"defects":{"Sura\\Corner\\Tests\\BasicTest::testException":8,"Sura\\Corner\\Tests\\BasicTest::testError":8,"Sura\\Corner\\Tests\\BasicTest::testSnippet":8},"times":{"Sura\\Corner\\Tests\\BasicTest::testException":0.003,"Sura\\Corner\\Tests\\BasicTest::testError":0.002,"Sura\\Corner\\Tests\\BasicTest::testSnippet":0.003}}

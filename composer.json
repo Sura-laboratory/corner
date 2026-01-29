@@ -22,7 +22,7 @@
     "squizlabs/php_codesniffer": "*"
   },
   "scripts": {
-    "test": [
+    "tests": [
       "@phpunit:coverage",
       "@phpcs"
     ],
