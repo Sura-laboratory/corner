@@ -50,11 +50,6 @@ jobs:
             echo "MAJOR=$(echo "$TAG! | cut -d'.' -f1)" >> $GITHUB_OUTPUT
             echo "MINOR=$(echo "$TAG! | cut -d'.' -f2)" >> $GITHUB_OUTPUT
             echo "PATCH=$(echo "$TAG! | cut -d'.' -f3)" >> $GITHUB_OUTPUT
-          # Иначе (неизвестный формат) → тоже начинаем с 0.0.1
-          else
-            echo "MAJOR=0" >> $GITHUB_OUTPUT
-            echo "MINOR=0" >> $GITHUB_OUTPUT
-            echo "PATCH=1" >> $GITHUB_OUTPUT
           fi
 
       - name: Determine SemVer bump (PHP-specific labels)
