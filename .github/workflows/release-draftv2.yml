@@ -66,7 +66,7 @@ jobs:
           MINOR=${{ steps.version-parse.outputs.MINOR }}
           PATCH=${{ steps.version-parse.outputs.PATCH }}
 
-          LABELS='${{ join(github.event.pull_request.labels.*.name, " ") }}'
+          LABELS='${{ join(github.event.pull_request.labels.*.name,  ' ') }}'
           LOWER_LABELS=$(echo "$LABELS" | tr '[:upper:]' '[:lower:]')
 
           # Groups of labels by SemVer categories (PHP-focused)
@@ -105,7 +105,7 @@ jobs:
           PR_TITLE='${{ github.event.pull_request.title }}'
           PR_URL='${{ github.event.pull_request.html_url }}'
           AUTHOR='${{ github.event.pull_request.user.login }}'
-          LABELS_STR='${{ join(github.event.pull_request.labels.*.name, " · ") }}'
+          LABELS_STR='${{ join(github.event.pull_request.labels.*.name, ' . ') }}'
           VERSION=${{ steps.semver.outputs.VERSION }}
 
           cat > changelog.md <<EOF
