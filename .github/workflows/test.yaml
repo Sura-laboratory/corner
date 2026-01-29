@@ -1,50 +1,29 @@
-name: Tests
-
-on: [ push ]
-
+name: PHP Tests
+on: [push]
 jobs:
-  tests:
-    name: Tests PHP ${{ matrix.php }}
-    runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.experimental }}
+  php:
+    name: (PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }})
+    runs-on: ${{ matrix.operating-system }}
     strategy:
       fail-fast: false
       matrix:
-        php-version:
-          - '8.4'
-        experimental: [ false ]
-        include:
-          - php: 8.4
-            analysis: true
-
+        operating-system: [ubuntu-latest]
+        php-versions: ['8.4', '8.5']
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Set up PHP ${{ matrix.php }}
+      - name: Setup PHP, with composer and extensions
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php }}
+          php-version: ${{ matrix.php-versions }}
           coverage: xdebug
 
-      - name: Install dependencies with Composer
-        uses: ramsey/composer-install@v1
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --classmap-authoritative --no-progress
 
-      - name: Coding standards
-        if: matrix.analysis
-        run: vendor/bin/phpcs
+      - name: Run PHP Code Sniffer and PHP CS Fixer (dry run)
+        run: composer run-script phpcs:ci
 
-      - name: Static analysis
-        if: matrix.analysis
-        run: vendor/bin/phpstan
-
-      - name: Tests
-        run: vendor/bin/phpunit --coverage-clover clover.xml
-
-      - name: Upload coverage results to Coveralls
-        if: matrix.analysis
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          composer require php-coveralls/php-coveralls -n -W
-          vendor/bin/php-coveralls --coverage_clover=clover.xml -v
+      - name: Run unit tests
+        run: composer run-script phpunit:ci
