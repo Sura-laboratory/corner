@@ -1,8 +1,9 @@
 name: PHP Release Draft (X.Y.Z format)
 
 on:
-  pull_request:
-    types: [opened, reopened, labeled, unlabeled, synchronize]
+  push:
+    branches:
+      - main
 
 jobs:
   draft-release:
