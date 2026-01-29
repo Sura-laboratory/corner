@@ -30,7 +30,6 @@ jobs:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           MERGE_METHOD: 'squash'
           MERGE_LABELS: "approved,!work in progress"
-          MERGE_REMOVE_LABELS: "approved"
           MERGE_COMMIT_MESSAGE: "pull-request-description"
           MERGE_RETRIES: "6"
           MERGE_RETRY_SLEEP: "10000"
