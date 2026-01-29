@@ -1,41 +1,41 @@
 <?php
+
 namespace Sura\Corner\Tests;
 
-use Sura\Corner\CornerInterface;
 use PHPUnit\Framework\TestCase;
+use Sura\Corner\CornerInterface;
 
 /**
- * Class BasicTest
- * @package Sura\Corner\Tests
+ * Class BasicTest.
  */
 class BasicTest extends TestCase
 {
-    public function testException() : void
+    public function testException(): void
     {
         try {
             throw new FooException('test');
         } catch (CornerInterface $ex) {
             $this->assertSame('test', $ex->getMessage());
             $this->assertNotEmpty($ex->getHelpfulMessage());
-            $this->assertSame('https://github.com/Sura/corner', $ex->getSupportLink());
+            $this->assertSame('https://github.com/Sura-laboratory/corner', $ex->getSupportLink());
         }
     }
 
-    public function testError() : void
+    public function testError(): void
     {
         try {
             throw new FooError('test');
         } catch (CornerInterface $ex) {
             $this->assertSame('test', $ex->getMessage());
             $this->assertNotEmpty($ex->getHelpfulMessage());
-            $this->assertSame('https://github.com/Sura/corner', $ex->getSupportLink());
+            $this->assertSame('https://github.com/Sura-laboratory/corner', $ex->getSupportLink());
         }
     }
 
-    public function testSnippet() : void
+    public function testSnippet(): void
     {
         try {
-            /** Canary string: 15f3456a04616adc5b42f3533d41a43aa2bad7eee2e914684ec86c3b84b71c61 */
+            /* Canary string: 15f3456a04616adc5b42f3533d41a43aa2bad7eee2e914684ec86c3b84b71c61 */
             throw new FooException('test');
         } catch (CornerInterface $ex) {
             $this->assertStringNotContainsString(
@@ -86,12 +86,9 @@ class BasicTest extends TestCase
         }
     }
 
-    /**
-     * @throws FooException
-     */
-    private function subcall() : void
+    private function subcall(): void
     {
-        /** Canary string: 6115f3456a04616adc5b42f3533d41a43aa2bad7eee2e914684ec86c3b84b71c */
+        /* Canary string: 6115f3456a04616adc5b42f3533d41a43aa2bad7eee2e914684ec86c3b84b71c */
         throw new FooException('test');
     }
 }

@@ -4,21 +4,22 @@ declare(strict_types=1);
 
 namespace Sura\Corner;
 
+use Throwable;
+
 /**
- * Interface CornerInterface
- * @package Sura\Corner
+ * Interface CornerInterface.
  */
-interface CornerInterface extends \Throwable
+interface CornerInterface extends Throwable
 {
     /**
      * You can override this to change the default value.
      */
-    public const HELPFUL_MESSAGE = '';
+    public const string HELPFUL_MESSAGE = '';
 
     /**
      * You can override this to change the default value.
      */
-    public const SUPPORT_LINK = '';
+    public const string SUPPORT_LINK = '';
 
     /**
      * Returns a more significant message.
@@ -29,17 +30,9 @@ interface CornerInterface extends \Throwable
      *
      * The output should be allowed to contain newline characters, ASCII art
      * diagrams, etc. Make it helpful for the developer.
-     *
-     * @return string
      */
     public function getHelpfulMessage(): string;
 
-    /**
-     * @param int $linesBefore
-     * @param int $linesAfter
-     * @param int $traceWalk
-     * @return string
-     */
     public function getSnippet(int $linesBefore = 0, int $linesAfter = 0, int $traceWalk = 0): string;
 
     /**
@@ -61,8 +54,6 @@ interface CornerInterface extends \Throwable
      * The intent of this method is to give the developer using your project the
      * quickest possible path to troubleshooting and solving the problem that
      * they're most likely facing if this Throwable gets thrown.
-     *
-     * @return string
      */
     public function getSupportLink(): string;
 
@@ -70,19 +61,13 @@ interface CornerInterface extends \Throwable
      * See: self::getHelpfulMessage(). This is the setter counterpart.
      * Mutates the object (changes its state in place rather than returning a
      * new object).
-     *
-     * @param string $message
-     * @return CornerInterface
      */
-    public function setHelpfulMessage(string $message): CornerInterface;
+    public function setHelpfulMessage(string $message): self;
 
     /**
      * See: self::getSupportLink(). This is the setter counterpart.
      * Mutates the object (changes its state in place rather than returning a
      * new object).
-     *
-     * @param string $url
-     * @return CornerInterface
      */
-    public function setSupportLink(string $url): CornerInterface;
+    public function setSupportLink(string $url): self;
 }

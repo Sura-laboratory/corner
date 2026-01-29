@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Sura\Corner;
 
+use LimitIterator;
+use SplFileObject;
+
 /**
- * Trait CornerTrait
- * @package Sura\Corner
+ * Trait CornerTrait.
  */
 trait CornerTrait
 {
-    /** @var string $helpfulMessage */
     protected string $helpfulMessage = '';
 
-    /** @var string $supportLink */
     protected string $supportLink = '';
 
     /**
@@ -25,8 +25,6 @@ trait CornerTrait
      *
      * The output should be allowed to contain newline characters, ASCII art
      * diagrams, etc. Make it helpful for the developer.
-     *
-     * @return string
      */
     public function getHelpfulMessage(): string
     {
@@ -39,20 +37,15 @@ trait CornerTrait
 
     /**
      * Return an excerpt of the source code that triggered this exception.
-     *
-     * @param int $linesBefore
-     * @param int $linesAfter
-     * @param int $traceWalk
-     * @return string
      */
     public function getSnippet(int $linesBefore = 0, int $linesAfter = 0, int $traceWalk = 0): string
     {
-        if ($traceWalk === 0) {
-            $file = new \SplFileObject($this->getFile());
+        if (0 === $traceWalk) {
+            $file = new SplFileObject($this->getFile());
             /** @var int $line */
             $line = $this->getLine() - 1;
         } else {
-            $traceWalk--;
+            --$traceWalk;
             // We're walking down the stack trace.
             /** @var array<int, array<string, string|int>> $trace */
             $trace = $this->getTrace();
@@ -63,18 +56,24 @@ trait CornerTrait
                 // We cannot excerpt this file.
                 return '';
             }
-            $file = new \SplFileObject((string) $trace[$traceWalk]['file']);
+            $file = new SplFileObject((string) $trace[$traceWalk]['file']);
             /** @var int $line */
-            $line = (int) ($trace[$traceWalk]['line']) - 1;
-            $linesAfter++;
+            $line = (int) $trace[$traceWalk]['line'] - 1;
+            ++$linesAfter;
         }
         $min = $line - $linesBefore;
         if ($min < 0) {
             $min = 0;
         }
 
-        $iterator = new \LimitIterator($file, $min, $linesAfter + 1);
-        return implode('', $iterator);
+        $iterator = new LimitIterator($file, $min, $linesAfter + 1);
+        $buffer = '';
+        /** @var string $text */
+        foreach ($iterator as $text) {
+            $buffer .= $text;
+        }
+
+        return $buffer;
     }
 
     /**
@@ -96,14 +95,13 @@ trait CornerTrait
      * The intent of this method is to give the developer using your project the
      * quickest possible path to troubleshooting and solving the problem that
      * they're most likely facing if this Throwable gets thrown.
-     *
-     * @return string
      */
     public function getSupportLink(): string
     {
         if (empty($this->supportLink)) {
             return static::SUPPORT_LINK;
         }
+
         return $this->supportLink;
     }
 
@@ -111,13 +109,11 @@ trait CornerTrait
      * See: self::getHelpfulMessage(). This is the setter counterpart.
      * Mutates the object (changes its state in place rather than returning a
      * new object).
-     *
-     * @param string $message
-     * @return CornerInterface
      */
     public function setHelpfulMessage(string $message): CornerInterface
     {
         $this->helpfulMessage = $message;
+
         return $this;
     }
 
@@ -125,13 +121,11 @@ trait CornerTrait
      * See: self::getSupportLink(). This is the setter counterpart.
      * Mutates the object (changes its state in place rather than returning a
      * new object).
-     *
-     * @param string $url
-     * @return CornerInterface
      */
     public function setSupportLink(string $url): CornerInterface
     {
         $this->supportLink = $url;
+
         return $this;
     }
 }
