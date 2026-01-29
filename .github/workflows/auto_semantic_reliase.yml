@@ -1,0 +1,120 @@
+name: Automated Semantic Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'  # Триггер на теги вида vX.Y.Z
+
+jobs:
+  generate-release-data:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.extract-version.outputs.VERSION }}
+      changelog: ${{ steps.build-changelog.outputs.CHANGELOG }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from tag
+        id: extract-version
+        run: |
+          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Find closed issues/PRs since last release
+        id: find-closed
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data } = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const lastRelease = data.find(r => r.tag_name !== context.ref.replace('refs/tags/', ''));
+            const since = lastRelease ? lastRelease.published_at : undefined;
+
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              since: since,
+              per_page: 100,
+            });
+
+            const prs = await github.paginate(github.rest.pulls.list, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              per_page: 100,
+            });
+
+            return [...issues, ...prs]
+              .filter(item => new Date(item.closed_at) > new Date(since || 0))
+              .map(item => ({
+                number: item.number,
+                title: item.title,
+                url: item.html_url,
+                labels: item.labels?.map(l => l.name) || [],
+                isPr: !!item.pull_request
+              }));
+
+      - name: Build Changelog
+        id: build-changelog
+        run: |
+          items=${{ steps.find-closed.outputs.result }}
+          changelog="## Changelog\n\n"
+
+          # Категории
+          declare -A categories
+          categories["bug"]="🐞 Bugs & Fixes"
+          categories["fix"]="🐞 Bugs & Fixes"
+          categories["feature"]="✨ Features"
+          categories["enhancement"]="✨ Features"
+          categories["docs"]="📝 Documentation"
+          categories["documentation"]="📝 Documentation"
+
+          # Группируем по категориям
+          for item in $(echo "$items" | jq -c '.'); do
+            title=$(echo "$item" | jq -r '.title')
+            url=$(echo "$item" | jq -r '.url')
+            number=$(echo "$item" | jq -r '.number')
+            labels=$(echo "$item" | jq -r '.labels | join(" ")')
+
+            category="⚙️ Other"
+            for label in $labels; do
+              for key in "${!categories[@]}"; do
+                if [[ "$label" == *"$key"* ]]; then
+                  category="${categories[$key]}"
+                  break 2
+                fi
+              done
+            done
+
+            changelog+="### $category\n- $title ([#$number]($url))\n"
+          done
+
+          # Удаляем дублирующие заголовки
+          changelog=$(echo "$changelog" | awk '!a[$0]++')
+
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "$changelog" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+  create-release:
+    needs: generate-release-data
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ needs.generate-release-data.outputs.version }}
+          body: ${{ needs.generate-release-data.outputs.changelog }}
+          draft: false
+          prerelease: false
