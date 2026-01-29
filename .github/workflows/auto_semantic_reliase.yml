@@ -3,7 +3,7 @@ name: Automated Semantic Release
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'  # Триггер на теги вида vX.Y.Z
+      - '[0-9]+.[0-9]+.[0-9]+'  # Триггер на теги вида vX.Y.Z
 
 jobs:
   generate-release-data:
