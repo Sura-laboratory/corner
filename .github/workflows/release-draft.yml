@@ -1,10 +1,8 @@
 name: PHP Release Draft (X.Y.Z format)
 
-
 on:
   pull_request:
     types: [opened, reopened, labeled, unlabeled, synchronize]
-
 
 jobs:
   draft-release:
@@ -57,7 +55,7 @@ jobs:
             echo "MAJOR=0" >> $GITHUB_OUTPUT
             echo "MINOR=0" >> $GITHUB_OUTPUT
             echo "PATCH=1" >> $GITHUB_OUTPUT
-          fi          
+          fi
 
       - name: Determine SemVer bump (PHP-specific labels)
         id: semver
@@ -68,7 +66,6 @@ jobs:
 
 
           LABELS='${{ join(github.event.pull_request.labels.*.name, ',') }}'
-
 
           # Группы меток по SemVer-категориям
           MAJOR_LABELS='break|breaking|major|deprecated|refactor|api-change|bc-break|downgrade|legacy'
@@ -109,20 +106,16 @@ jobs:
           AUTHOR='${{ github.event.pull_request.user.login }}'
           LABELS_STR='${{ join(github.event.pull_request.labels.*.name, ' · ') }}'
 
-
           cat << EOF > changelog.md
           ## Release ${{ steps.semver.outputs.VERSION }} (Draft)
 
-
-          > 🛠 Auto-generated draft for PHP project. Review before publishing.
-
+          > 🛠 Auto‑generated draft for PHP project. Review before publishing.
 
           ### PR Overview
           - **Title**: [$PR_TITLE]($PR_URL)
           - **Number**: #$PR_NUM
           - **Author**: @$AUTHOR
           - **Labels**: $LABELS_STR
-
 
           ### Change Categories
           $(
@@ -158,19 +151,17 @@ jobs:
           ### Details
           - $PR_TITLE ([#$PR_NUM]($PR_URL))
 
-
           ### Review Checklist
           - [ ] ✅ Backward compatibility (MAJOR/MINOR)
           - [ ] 📄 Update CHANGELOG.md and UPGRADE.md
           - [ ] 🧪 Run tests (PHPUnit/Pest)
           - [ ] 🔍 Check deprecations
-          - [ ] 🌐 Test on PHP 8.4–8.5
+          - [ ] 🌐 Test on PHP 8.0–8.3
           - [ ] 📦 Composer validate
 
           ---
           _Generated: $(date +'%Y-%m-%d %H:%M') | Workflow: PHP Release Draft (X.Y.Z)_
           EOF
-
 
           BODY=$(cat changelog.md)
           echo "BODY<<EOF! >> $GITHUB_OUTPUT
