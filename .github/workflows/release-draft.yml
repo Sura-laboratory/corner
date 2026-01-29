@@ -1,9 +1,10 @@
-name: PHP Release Draft (SemVer by Labels)
+name: PHP Release Draft (X.Y.Z format)
 
 
 on:
   pull_request:
     types: [opened, reopened, labeled, unlabeled, synchronize]
+
 
 jobs:
   draft-release:
@@ -29,7 +30,7 @@ jobs:
                 repo: context.repo.repo
               });
               if (data.length === 0) return null;
-              return data.sort((a, b) => 
+              return data.sort((a, b) =>
                 new Date(b.published_at) - new Date(a.published_at)
               )[0].tag_name;
             } catch (e) {
@@ -40,15 +41,16 @@ jobs:
         id: version-parse
         run: |
           TAG="${{ steps.latest-release.outputs.result }}"
-          if [[ -z "$TAG! || "$TAG! != v* ]]; then
+          if [[ -z "$TAG! || "$TAG! =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            # Если тег без префикса v (X.Y.Z)
+            echo "MAJOR=$(echo "$TAG! | cut -d'.' -f1)" >> $GITHUB_OUTPUT
+            echo "MINOR=$(echo "$TAG! | cut -d'.' -f2)" >> $GITHUB_OUTPUT
+            echo "PATCH=$(echo "$TAG! | cut -d'.' -f3)" >> $GITHUB_OUTPUT
+          else
+            # Если тега нет или формат не совпадает — начинаем с 0.0.0
             echo "MAJOR=0" >> $GITHUB_OUTPUT
             echo "MINOR=0" >> $GITHUB_OUTPUT
             echo "PATCH=0" >> $GITHUB_OUTPUT
-          else
-            V="${TAG#v}"
-            echo "MAJOR=$(echo "$V! | cut -d'.' -f1)" >> $GITHUB_OUTPUT
-            echo "MINOR=$(echo "$V! | cut -d'.' -f2)" >> $GITHUB_OUTPUT
-            echo "PATCH=$(echo "$V! | cut -d'.' -f3)" >> $GITHUB_OUTPUT
           fi
 
       - name: Determine SemVer bump (PHP-specific labels)
@@ -57,6 +59,7 @@ jobs:
           MAJOR=${{ steps.version-parse.outputs.MAJOR }}
           MINOR=${{ steps.version-parse.outputs.MINOR }}
           PATCH=${{ steps.version-parse.outputs.PATCH }}
+
 
           LABELS='${{ join(github.event.pull_request.labels.*.name, ',') }}'
 
@@ -86,9 +89,9 @@ jobs:
             NEW_PATCH=$((PATCH + 1))
           fi
 
-          VERSION="v${NEW_MAJOR}.${NEW_MINOR}.${NEW_PATCH}"
+          VERSION="${NEW_MAJOR}.${NEW_MINOR}.${NEW_PATCH}"
           echo "VERSION=$VERSION! >> $GITHUB_OUTPUT
-          echo "SHORT=${NEW_MAJOR}.${NEW_MINOR}.${NEW_PATCH}" >> $GITHUB_OUTPUT
+          echo "SHORT=$VERSION! >> $GITHUB_OUTPUT
 
 
       - name: Generate Changelog
@@ -104,13 +107,16 @@ jobs:
           cat << EOF > changelog.md
           ## Release ${{ steps.semver.outputs.VERSION }} (Draft)
 
+
           > 🛠 Auto‑generated draft for PHP project. Review before publishing.
+
 
           ### PR Overview
           - **Title**: [$PR_TITLE]($PR_URL)
           - **Number**: #$PR_NUM
           - **Author**: @$AUTHOR
           - **Labels**: $LABELS_STR
+
 
           ### Change Categories
           $(
@@ -146,6 +152,7 @@ jobs:
           ### Details
           - $PR_TITLE ([#$PR_NUM]($PR_URL))
 
+
           ### Review Checklist
           - [ ] ✅ Backward compatibility (MAJOR/MINOR)
           - [ ] 📄 Update CHANGELOG.md and UPGRADE.md
@@ -155,13 +162,15 @@ jobs:
           - [ ] 📦 Composer validate
 
           ---
-          _Generated: $(date +'%Y-%m-%d %H:%M') | Workflow: PHP Release Draft_
+          _Generated: $(date +'%Y-%m-%d %H:%M') | Workflow: PHP Release Draft (X.Y.Z)_
           EOF
+
 
           BODY=$(cat changelog.md)
           echo "BODY<<EOF! >> $GITHUB_OUTPUT
           echo "$BODY! >> $GITHUB_OUTPUT
           echo "EOF! >> $GITHUB_OUTPUT
+
 
       - name: Create/Update Release Draft
         uses: actions/create-release@v1
