@@ -1,0 +1,43 @@
+name: Publish Release on Merge to main
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write   # needed to create annotated tags and releases
+  pull-requests: read
+
+jobs:
+  publish_release:
+    name: Publish release when PR is merged to main
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (with tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install helper script dependencies
+        working-directory: .github/scripts
+        run: npm ci
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish release for merged PR(s)
+        working-directory: .github/scripts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF: ${{ github.ref }}
+          GITHUB_ACTOR: ${{ github.actor }}
+        run: node publish-release.js
+```
