@@ -6,7 +6,7 @@ on:
 
 jobs:
   draft-release:
-    if: github.event.pull_request.merged == false
+    if: ${{ !github.event.pull_request.merged }}
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.semver.outputs.VERSION }}
@@ -37,21 +37,22 @@ jobs:
 
       - name: Parse current version
         id: version-parse
+        shell: bash
         run: |
           TAG="${{ steps.latest-release.outputs.result }}"
 
-          # Если нет релизов (TAG=null) → начинаем с 0.0.1
-          if [[ "$TAG! == "null" ]]; then
+          # If no releases (TAG empty or "null") → start from 0.0.1
+          if [ -z "$TAG" ] || [ "$TAG" = "null" ]; then
             echo "MAJOR=0" >> $GITHUB_OUTPUT
             echo "MINOR=0" >> $GITHUB_OUTPUT
             echo "PATCH=1" >> $GITHUB_OUTPUT
-          # Если тег уже в формате X.Y.Z (без префикса v)
-          elif [[ -n "$TAG! && "$TAG! =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "MAJOR=$(echo "$TAG! | cut -d'.' -f1)" >> $GITHUB_OUTPUT
-            echo "MINOR=$(echo "$TAG! | cut -d'.' -f2)" >> $GITHUB_OUTPUT
-            echo "PATCH=$(echo "$TAG! | cut -d'.' -f3)" >> $GITHUB_OUTPUT
-          # Иначе (неизвестный формат) → тоже начинаем с 0.0.1
+          # If tag matches X.Y.Z or vX.Y.Z → parse components
+          elif [[ "$TAG" =~ ^v?([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            echo "MAJOR=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
+            echo "MINOR=${BASH_REMATCH[2]}" >> $GITHUB_OUTPUT
+            echo "PATCH=${BASH_REMATCH[3]}" >> $GITHUB_OUTPUT
           else
+            # Unknown format → start from 0.0.1
             echo "MAJOR=0" >> $GITHUB_OUTPUT
             echo "MINOR=0" >> $GITHUB_OUTPUT
             echo "PATCH=1" >> $GITHUB_OUTPUT
@@ -59,97 +60,100 @@ jobs:
 
       - name: Determine SemVer bump (PHP-specific labels)
         id: semver
+        shell: bash
         run: |
           MAJOR=${{ steps.version-parse.outputs.MAJOR }}
           MINOR=${{ steps.version-parse.outputs.MINOR }}
           PATCH=${{ steps.version-parse.outputs.PATCH }}
 
+          LABELS='${{ join(github.event.pull_request.labels.*.name, " ") }}'
+          LOWER_LABELS=$(echo "$LABELS" | tr '[:upper:]' '[:lower:]')
 
-          LABELS='${{ join(github.event.pull_request.labels.*.name, ',') }}'
-
-          # Группы меток по SemVer-категориям
+          # Groups of labels by SemVer categories (PHP-focused)
           MAJOR_LABELS='break|breaking|major|deprecated|refactor|api-change|bc-break|downgrade|legacy'
-          MINOR_LABELS='feature|enhancement|new|add|implement|psr-\d+|standards|coding-style|php\d+\.\d+|dependency-update|interface|trait|enum'
+          MINOR_LABELS='feature|enhancement|new|add|implement|psr-[0-9]+|standards|coding-style|php[0-9]+\.[0-9]+|dependency-update|interface|trait|enum'
           PATCH_LABELS='fix|bug|patch|hotfix|security|vulnerability|test|coverage|performance|optimization|ci|cd|docs|documentation|changelog|readme|lint|format|typo'
 
-
-          if echo "$LABELS! | grep -iqE "\b($MAJOR_LABELS)\b"; then
+          if echo "$LOWER_LABELS" | grep -Eiq "$MAJOR_LABELS"; then
             NEW_MAJOR=$((MAJOR + 1))
             NEW_MINOR=0
             NEW_PATCH=0
-          elif echo "$LABELS! | grep -iqE "\b($MINOR_LABELS)\b"; then
+          elif echo "$LOWER_LABELS" | grep -Eiq "$MINOR_LABELS"; then
             NEW_MAJOR=$MAJOR
             NEW_MINOR=$((MINOR + 1))
             NEW_PATCH=0
-          elif echo "$LABELS! | grep -iqE "\b($PATCH_LABELS)\b"; then
+          elif echo "$LOWER_LABELS" | grep -Eiq "$PATCH_LABELS"; then
             NEW_MAJOR=$MAJOR
             NEW_MINOR=$MINOR
             NEW_PATCH=$((PATCH + 1))
           else
-            # Default: patch
+            # Default: patch bump
             NEW_MAJOR=$MAJOR
             NEW_MINOR=$MINOR
             NEW_PATCH=$((PATCH + 1))
           fi
 
           VERSION="${NEW_MAJOR}.${NEW_MINOR}.${NEW_PATCH}"
-          echo "VERSION=$VERSION! >> $GITHUB_OUTPUT
-          echo "SHORT=$VERSION! >> $GITHUB_OUTPUT
-
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "SHORT=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Generate Changelog
         id: changelog
+        shell: bash
         run: |
           PR_NUM=${{ github.event.pull_request.number }}
           PR_TITLE='${{ github.event.pull_request.title }}'
           PR_URL='${{ github.event.pull_request.html_url }}'
           AUTHOR='${{ github.event.pull_request.user.login }}'
-          LABELS_STR='${{ join(github.event.pull_request.labels.*.name, ' · ') }}'
+          LABELS_STR='${{ join(github.event.pull_request.labels.*.name, " · ") }}'
+          VERSION=${{ steps.semver.outputs.VERSION }}
 
-          cat << EOF > changelog.md
-          ## Release ${{ steps.semver.outputs.VERSION }} (Draft)
+          cat > changelog.md <<EOF
+          
+          ## Release ${VERSION} (Draft)
 
           > 🛠 Auto‑generated draft for PHP project. Review before publishing.
 
           ### PR Overview
-          - **Title**: [$PR_TITLE]($PR_URL)
-          - **Number**: #$PR_NUM
-          - **Author**: @$AUTHOR
-          - **Labels**: $LABELS_STR
+          - **Title**: [${PR_TITLE}](${PR_URL})
+          - **Number**: #${PR_NUM}
+          - **Author**: @${AUTHOR}
+          - **Labels**: ${LABELS_STR}
 
           ### Change Categories
-          $(
-            if echo "$LABELS_STR! | grep -iq 'feature'; then
+          $( 
+            LOWER_LABELS="$(echo "${LABELS_STR}" | tr '[:upper:]' '[:lower:]')"
+            if echo "$LOWER_LABELS" | grep -iq 'feature'; then
               echo "- ✨ Features"
             fi
-            if echo "$LABELS_STR! | grep -iqE 'fix|bug|hotfix|security'; then
+            if echo "$LOWER_LABELS" | grep -Eiq 'fix|bug|hotfix|security'; then
               echo "- 🐞 Bug Fixes & Security"
             fi
-            if echo "$LABELS_STR! | grep -iqE 'refactor|deprecated|api-change'; then
+            if echo "$LOWER_LABELS" | grep -Eiq 'refactor|deprecated|api-change'; then
               echo "- ⚒ Refactoring & Deprecations"
             fi
-            if echo "$LABELS_STR! | grep -iqE 'test|coverage'; then
+            if echo "$LOWER_LABELS" | grep -Eiq 'test|coverage'; then
               echo "- 🧪 Tests & Coverage"
             fi
-            if echo "$LABELS_STR! | grep -iqE 'docs|readme|changelog'; then
+            if echo "$LOWER_LABELS" | grep -Eiq 'docs|readme|changelog'; then
               echo "- 📝 Documentation"
             fi
-            if echo "$LABELS_STR! | grep -iqE 'performance|optimization'; then
+            if echo "$LOWER_LABELS" | grep -Eiq 'performance|optimization'; then
               echo "- 🚀 Performance"
             fi
-            if echo "$LABELS_STR! | grep -iqE 'ci|cd'; then
+            if echo "$LOWER_LABELS" | grep -Eiq 'ci|cd'; then
               echo "- 🔧 CI/CD Improvements"
             fi
-            if echo "$LABELS_STR! | grep -iqE 'psr'; then
+            if echo "$LOWER_LABELS" | grep -Eiq 'psr'; then
               echo "- 📏 PSR Standards"
             fi
-            if echo "$LABELS_STR! | grep -iqE 'php\d+\.\d+'; then
+            if echo "$LOWER_LABELS" | grep -Eiq 'php[0-9]+\.[0-9]+'; then
               echo "- 🌐 PHP Version Support"
             fi
           )
 
           ### Details
-          - $PR_TITLE ([#$PR_NUM]($PR_URL))
+          - ${PR_TITLE} ([#${PR_NUM}](${PR_URL}))
 
           ### Review Checklist
           - [ ] ✅ Backward compatibility (MAJOR/MINOR)
@@ -157,17 +161,16 @@ jobs:
           - [ ] 🧪 Run tests (PHPUnit/Pest)
           - [ ] 🔍 Check deprecations
           - [ ] 🌐 Test on PHP 8.0–8.3
-          - [ ] 📦 Composer validate
+          - [ ] 📦 composer validate
 
           ---
           _Generated: $(date +'%Y-%m-%d %H:%M') | Workflow: PHP Release Draft (X.Y.Z)_
           EOF
 
-          BODY=$(cat changelog.md)
-          echo "BODY<<EOF! >> $GITHUB_OUTPUT
-          echo "$BODY! >> $GITHUB_OUTPUT
-          echo "EOF! >> $GITHUB_OUTPUT
-
+          # Expose changelog body as a multiline output
+          echo "BODY<<EOF" >> $GITHUB_OUTPUT
+          cat changelog.md >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create/Update Release Draft
         uses: actions/create-release@v1
