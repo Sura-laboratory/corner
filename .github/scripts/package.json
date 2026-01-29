@@ -1,0 +1,12 @@
+{
+  "name": "pr-release-generator",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node generate-release.js"
+  },
+  "dependencies": {
+    "@octokit/rest": "^20.0.0",
+    "semver": "^7.5.5"
+  }
+}
