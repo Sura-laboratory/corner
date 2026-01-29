@@ -24,12 +24,6 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install helper script dependencies
-        working-directory: .github/scripts
-        run: npm ci
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Generate or update draft release
         working-directory: .github/scripts
         env:
