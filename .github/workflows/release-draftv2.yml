@@ -1,4 +1,4 @@
-name: PHP Release Draft (X.Y.Z format)
+name: PHP Release Draft (X.Y.Z format)2
 
 on:
   pull_request:
