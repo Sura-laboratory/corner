@@ -9,10 +9,10 @@ namespace Sura\Corner;
 trait CornerTrait
 {
     /** @var string $helpfulMessage */
-    protected $helpfulMessage = '';
+    protected string $helpfulMessage = '';
 
     /** @var string $supportLink */
-    protected $supportLink = '';
+    protected string $supportLink = '';
 
     /**
      * Returns a more significant message.
