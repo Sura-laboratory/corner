@@ -41,17 +41,23 @@ jobs:
         id: version-parse
         run: |
           TAG="${{ steps.latest-release.outputs.result }}"
-          if [[ -z "$TAG! || "$TAG! =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            # Если тег без префикса v (X.Y.Z)
+
+          # Если нет релизов (TAG=null) → начинаем с 0.0.1
+          if [[ "$TAG! == "null" ]]; then
+            echo "MAJOR=0" >> $GITHUB_OUTPUT
+            echo "MINOR=0" >> $GITHUB_OUTPUT
+            echo "PATCH=1" >> $GITHUB_OUTPUT
+          # Если тег уже в формате X.Y.Z (без префикса v)
+          elif [[ -n "$TAG! && "$TAG! =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "MAJOR=$(echo "$TAG! | cut -d'.' -f1)" >> $GITHUB_OUTPUT
             echo "MINOR=$(echo "$TAG! | cut -d'.' -f2)" >> $GITHUB_OUTPUT
             echo "PATCH=$(echo "$TAG! | cut -d'.' -f3)" >> $GITHUB_OUTPUT
+          # Иначе (неизвестный формат) → тоже начинаем с 0.0.1
           else
-            # Если тега нет или формат не совпадает — начинаем с 0.0.0
             echo "MAJOR=0" >> $GITHUB_OUTPUT
             echo "MINOR=0" >> $GITHUB_OUTPUT
-            echo "PATCH=0" >> $GITHUB_OUTPUT
-          fi
+            echo "PATCH=1" >> $GITHUB_OUTPUT
+          fi          
 
       - name: Determine SemVer bump (PHP-specific labels)
         id: semver
