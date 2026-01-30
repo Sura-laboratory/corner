@@ -13,11 +13,6 @@ jobs:
       pull-requests: read
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - name: Extract labels from merged PRs
         id: pr-labels
         if: github.event_name == 'pull_request'
