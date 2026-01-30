@@ -1,9 +1,9 @@
 name: PHP Release Draft
 
 on:
-  pull_request:
-    types: [closed]
-    branches: [main, dev]
+  push:
+    branches:
+      - main
 
 
 jobs:
