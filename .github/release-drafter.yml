@@ -1,5 +1,5 @@
 template: |
-  ## Changes
+  ## Changes Information
   $CHANGES
 change-template: '- **$TITLE** (#$NUMBER)'
 
