@@ -1,8 +1,9 @@
 name: PHP Release Draft
 
 on:
-  pull_request:
-    types: [opened, reopened, labeled, unlabeled, synchronize]
+  push:
+    branches:
+      - main1
 
 jobs:
   draft-release:
