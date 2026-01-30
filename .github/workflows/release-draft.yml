@@ -1,9 +1,8 @@
 name: PHP Release Draft (X.Y.Z format)
 
 on:
-  push:
-    branches:
-      - main
+  pull_request:
+    types: [opened, reopened, labeled, unlabeled, synchronize]
 
 jobs:
   draft-release:
@@ -178,5 +177,5 @@ jobs:
           tag_name: ${{ steps.semver.outputs.VERSION }}
           name: Release ${{ steps.semver.outputs.SHORT }}
           body: ${{ steps.changelog.outputs.BODY }}
-          draft: true
+          draft: false
           prerelease: false
