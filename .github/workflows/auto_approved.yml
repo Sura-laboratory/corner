@@ -13,6 +13,6 @@ jobs:
         uses: koj-co/label-approved-action@master
         with:
           labels: "approved"
-          approvals: 2
+          approvals: 1
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
