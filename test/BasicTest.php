@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Sura\Corner\CornerInterface;
 
 /**
- * Class BasicTest.
+ * Class BasicTest
  */
 class BasicTest extends TestCase
 {
