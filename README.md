@@ -1,12 +1,17 @@
 # Corner
 
-[![Linux Build Status](https://travis-ci.org/sura/corner.svg?branch=main)](https://travis-ci.org/sura/corner)
-[![Latest Stable Version](https://poser.pugx.org/sura/corner/v/stable)](https://packagist.org/packages/sura/corner)
-[![Latest Unstable Version](https://poser.pugx.org/tepsuraida/corner/v/unstable)](https://packagist.org/packages/sura/corner)
-[![License](https://poser.pugx.org/sura/corner/license)](https://packagist.org/packages/sura/corner)
-[![Downloads](https://img.shields.io/packagist/dt/sura/corner.svg)](https://packagist.org/packages/sura/corner)
+[![Latest Stable Version](http://poser.pugx.org/sura/corner/v)](https://packagist.org/packages/sura/corner) 
+[![Total Downloads](http://poser.pugx.org/sura/corner/downloads)](https://packagist.org/packages/sura/corner) 
+[![Latest Unstable Version](http://poser.pugx.org/sura/corner/v/unstable)](https://packagist.org/packages/sura/corner) 
+[![License](http://poser.pugx.org/sura/corner/license)](https://packagist.org/packages/sura/corner)
+[![PHP Version Require](http://poser.pugx.org/sura/corner/require/php)](https://packagist.org/packages/sura/corner)
+[![Github repo](https://img.shields.io/badge/github-repo-blue?logo=github)](https://github.com/Sura-laboratory/corner)
 
-* Version 1.x: Requires PHP 8.1 or newer.
+
+
+
+
+* Version 1.x: Requires PHP 8.4 or newer.
 
 ## Motivation 
 
