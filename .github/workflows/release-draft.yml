@@ -1,4 +1,4 @@
-name: PHP Release Draft
+name: PHP Release
 
 on:
   push:
@@ -166,5 +166,5 @@ jobs:
           tag_name: ${{ steps.semver.outputs.VERSION }}
           name: Release ${{ steps.semver.outputs.SHORT }}
           body: ${{ steps.changelog.outputs.BODY }}
-          draft: false
+          draft: true
           prerelease: false
