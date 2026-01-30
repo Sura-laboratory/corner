@@ -157,16 +157,8 @@ jobs:
           ### Details
           - ${PR_TITLE} ([#${PR_NUM}](${PR_URL}))
 
-          ### Review Checklist
-          - [ ] ✅ Backward compatibility (MAJOR/MINOR)
-          - [ ] 📄 Update CHANGELOG.md and UPGRADE.md
-          - [ ] 🧪 Run tests (PHPUnit/Pest)
-          - [ ] 🔍 Check deprecations
-          - [ ] 🌐 Test on PHP 8.4–8.5
-          - [ ] 📦 composer validate
-
           ---
-          _Generated: $(date +'%Y-%m-%d %H:%M') | Workflow: PHP Release Draft (X.Y.Z)_
+          _Generated: $(date +'%Y-%m-%d %H:%M')
           EOF
 
           # Expose changelog body as a multiline output
