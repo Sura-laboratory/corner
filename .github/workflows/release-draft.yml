@@ -3,7 +3,7 @@ name: PHP Release Draft
 on:
   pull_request:
     types: [closed]
-    branches: [main]
+    branches: [main, dev]
 
 
 jobs:
