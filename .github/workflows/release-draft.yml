@@ -1,9 +1,8 @@
-name: PHP Release Draft (X.Y.Z format)
+name: PHP Release Draft
 
 on:
-  push:
-    branches:
-      - main  # Триггерит при любом push в main
+  pull_request:
+    types: [opened, reopened, labeled, unlabeled, synchronize]
 
 jobs:
   draft-release:
