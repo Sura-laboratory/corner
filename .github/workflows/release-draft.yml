@@ -3,7 +3,7 @@ name: PHP Release Draft (X.Y.Z format)
 on:
   push:
     branches:
-      - main
+      - main  # Триггерит при любом push в main
 
 jobs:
   draft-release:
@@ -161,7 +161,7 @@ jobs:
           - [ ] 📄 Update CHANGELOG.md and UPGRADE.md
           - [ ] 🧪 Run tests (PHPUnit/Pest)
           - [ ] 🔍 Check deprecations
-          - [ ] 🌐 Test on PHP 8.0–8.3
+          - [ ] 🌐 Test on PHP 8.4–8.5
           - [ ] 📦 composer validate
 
           ---
