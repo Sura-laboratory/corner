@@ -13,6 +13,10 @@ jobs:
         uses: koj-co/label-approved-action@master
         with:
           labels: "approved"
+<<<<<<< HEAD
           approvals: 1
+=======
+          approvals: 2
+>>>>>>> 0b651142f1d893f3a2e41409ad2303408c029d8a
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
