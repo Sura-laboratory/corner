@@ -111,7 +111,7 @@ jobs:
 
           cat > changelog.md <<EOF
           
-          ## Release ${VERSION} (Draft)
+          ## Release ${VERSION}
 
           > 🛠 Auto‑generated draft for PHP project. Review before publishing.
 
