@@ -1,10 +1,9 @@
 name: Create Release
 
 on:
-  push:
-    branches: [main, master]
   pull_request:
     types: [closed]
+    branches: [main]
 
 jobs:
   create-release:
