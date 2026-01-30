@@ -178,5 +178,5 @@ jobs:
           tag_name: ${{ steps.semver.outputs.VERSION }}
           name: Release ${{ steps.semver.outputs.SHORT }}
           body: ${{ steps.changelog.outputs.BODY }}
-          draft: true
+          draft: false
           prerelease: false
